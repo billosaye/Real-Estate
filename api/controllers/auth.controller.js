@@ -1,3 +1,7 @@
+
+
+//A. The SIGNUP
+
 //Defines an async signup function that:
 // 1. Extracts username, password, and email from request body
 // 2. Validates inputs
@@ -71,3 +75,66 @@ export const signup = async (req, res) => {
     });
   }
 };
+
+//SignIn
+
+export const signin = async (req, res) => {
+  try {
+    // Destructure email and password from the request body
+    const { email, password } = req.body;
+
+    // Validate that both email and password are provided and not just whitespace
+    if (!email?.trim() || !password?.trim()) {
+      return res.status(400).json({
+        error: "All fields are required and cannot be empty",
+      });
+    }
+
+    // Define regex pattern for email validation  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Test if the provided email matches the required format
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: "Invalid email format",
+      });
+    }
+
+    // Search database for user with matching email (converted to lowercase)
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    // If no user is found, return error
+    if (!existingUser) {
+      return res.status(400).json({
+        error: "User not found",
+      });
+    }
+
+    // Compare provided password with hashed password stored in database
+    const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
+    // If passwords don't match, return error
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ 
+        error: "Invalid password",
+      });
+    } 
+
+    // If all validations pass, send success response with user data
+    res.status(200).json({
+      message: "Signin successful",
+      user: {
+        id: existingUser._id,      // Include user's MongoDB ID
+        name: existingUser.name,    // Include user's name
+        email: existingUser.email,  // Include user's email
+      },
+    }); 
+  } catch (error) {
+    // Log any errors that occur during the signin process
+    console.error("Signin error:", error);
+    // Send generic error response to client
+    res.status(500).json({
+      error: "An error occurred during signin",
+    });
+  }
+};
+
+
+
