@@ -1,7 +1,6 @@
 {
   "name": "real-estate",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -21,6 +20,8 @@
     "mongoose": "^8.9.1",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.9",
-    "react-router-dom": "^7.1.1"
-  }
+    "react-router-dom": "^7.1.1",
+    "redux-persist": "^6.0.0"
+  },
+  "description": ""
 }

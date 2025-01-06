@@ -1,16 +1,34 @@
 import React, { useState } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import { signUpStart,
+  signUpSuccess,
+  signUpFailure,
+  signInStart,
+  signInSuccess,
+  signInFailure,
+  signOut } from "../redux/user/userSlice";
+import Oauth from "../Components/Oauth";
+
+
+
+
 
 const SignIn = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const { loading, error } = useSelector((state) => state.user);  
+ 
   const [notification, setNotification] = useState({
     show: false,
     message: '',
     type: '' // 'success' or 'error'
   });
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -19,6 +37,9 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Dispatch sign-in start
+      dispatch(signInStart());
+
       const res = await fetch('http://localhost:5000/api/auth/signin', {
         method: 'POST',
         headers: {
@@ -29,12 +50,16 @@ const SignIn = () => {
       const data = await res.json();
       
       if (data.error) {
+        // Dispatch sign-in failure
+        dispatch(signInFailure(data.error));
         setNotification({
           show: true,
           message: data.error,
           type: 'error'
         });
       } else {
+        // Dispatch sign-in success with user data
+        dispatch(signInSuccess(data));
         // Clear form
         setFormData({
           email: '',
@@ -46,8 +71,9 @@ const SignIn = () => {
           message: 'Signin successful!',
           type: 'success'
         });
-      }
-
+        // Navigate to home page after successful sign-in
+        navigate('/');
+      } 
       // Hide notification after 3 seconds
       setTimeout(() => {
         setNotification({
@@ -58,6 +84,8 @@ const SignIn = () => {
       }, 3000);
 
     } catch (error) {
+      // Dispatch sign-in failure
+      dispatch(signInFailure(error.message));
       setNotification({
         show: true,
         message: 'An error occurred during signin',
@@ -98,15 +126,20 @@ const SignIn = () => {
           onChange={handleChange}
           value={formData.password}
         />
-        <button className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80 hover:bg-slate-800 transition duration-200 font-medium">
-          Sign In
+        <button 
+          disabled={loading}
+          className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80 hover:bg-slate-800 transition duration-200 font-medium"
+        >
+          {loading ? 'Loading...' : 'Sign In'}
         </button>
+        <Oauth />
         <div className="flex gap-2 mt-5 justify-center">
           <p>Don't have an account?</p>
           <Link to="/signup" className="text-blue-700 hover:underline">
             Sign Up
           </Link>
         </div>
+        
       </form>
     </div>
   );
