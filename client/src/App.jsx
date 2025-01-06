@@ -5,6 +5,7 @@ import Profile from "./Pages/Profile";
 import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
 import Header from "./Components/Header";
+import Footer from "./Components/Footer";
 
 const App = () => {
   return (
@@ -21,9 +22,8 @@ const App = () => {
             <Route path="*" element={<NotFound />} />   {/* This is the catch-all route that will be used to display a 404 page if a user navigates to a non-existent route */}
           </Routes>
         </main>
-        <footer className="bg-gray-800 text-white py-4 text-center">
-          <p>&copy; {new Date().getFullYear()} BetterHomes. All rights reserved.</p> 
-        </footer>
+        <Footer />
+       
       </div>
     </BrowserRouter>
   );
