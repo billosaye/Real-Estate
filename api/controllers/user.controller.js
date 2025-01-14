@@ -5,4 +5,4 @@ export const test = (req, res) => {
 
 export const bill = (req, res) => {
   res.send("Billy on the test route");
-};
+}; 

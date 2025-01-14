@@ -12,16 +12,8 @@ import morgan from 'morgan';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables
+// Load environment variables 
 dotenv.config({ path: path.join(__dirname, ".env") });
-
-// Validate required environment variables
-const requiredEnvVars = ['MONGODB_URI', 'PORT'];
-requiredEnvVars.forEach(envVar => {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-});
 
 const app = express();
 
@@ -33,12 +25,9 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
+// Connect to MongoDB - removed deprecated options
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("Database Connected!");
   })
@@ -49,9 +38,9 @@ mongoose
 // Configure routes
 app.use("/api/user", userRouter); // All requests to /api/user will be handled by the user router
 app.use("/api/auth", authRouter); // All requests to /api/auth will be handled by the auth router
-
+ 
 // Global error handling middleware
-app.use((err, req, res, next) => { // This middleware catches any errors that occur during request processing and sends a 500 Internal Server Error response with a generic error message.
+app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     status: 'error',
@@ -59,22 +48,7 @@ app.use((err, req, res, next) => { // This middleware catches any errors that oc
   });
 });
 
-// Create HTTP server separately for graceful shutdown
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-// Graceful shutdown handling
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    mongoose.connection.close(false, () => {
-      console.log('MongoDB connection closed.');
-      process.exit(0);
-    });
-  });
-});
-
-
-
-

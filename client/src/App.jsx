@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Link, Outlet } from "react-router-dom";
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import Profile from "./Pages/Profile";
@@ -6,25 +6,104 @@ import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
+import { Helmet } from "react-helmet"; // Importing react-helmet for dynamic <head> management
 
 const App = () => {
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col"> {/* min-h-screen is used to ensure the container takes up the full height of the viewport/screen */}
-        <Header />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="*" element={<NotFound />} />   {/* This is the catch-all route that will be used to display a 404 page if a user navigates to a non-existent route */}
-          </Routes>
-        </main>
-        <Footer />
-       
-      </div>
+      <Routes>
+        {/* Auth routes without header/footer */}
+        <Route
+          path="/"
+          element={
+            <>
+              <Helmet>
+                <title>Sign Up - BetterHomes Real Estate</title>
+                <meta
+                  name="description"
+                  content="Create an account with BetterHomes and start your property search today!"
+                />
+              </Helmet>
+              <SignUp />
+            </>
+          }
+        />
+        <Route
+          path="/signin"
+          element={
+            <>
+              <Helmet>
+                <title>Sign In - BetterHomes Real Estate</title>
+                <meta
+                  name="description"
+                  content="Sign in to BetterHomes to access your account and saved listings."
+                />
+              </Helmet>
+              <SignIn />
+            </>
+          }
+        />
+
+        {/* All other routes with header/footer */}
+        <Route
+          element={
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-grow">
+                <Outlet />
+              </main>
+              <Footer />
+            </div>
+          }
+        >
+          <Route
+            path="/home"
+            element={
+              <>
+                <Helmet>
+                  <title>Home - BetterHomes Real Estate</title>
+                  <meta
+                    name="description"
+                    content="Explore our featured listings and find your dream home."
+                  />
+                </Helmet>
+                <Home />
+              </>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <>
+                <Helmet>
+                  <title>About Us - BetterHomes Real Estate</title>
+                  <meta
+                    name="description"
+                    content="Learn more about BetterHomes and how we help you find the perfect home."
+                  />
+                </Helmet>
+                <About />
+              </>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <>
+                <Helmet>
+                  <title>Your Profile - BetterHomes Real Estate</title>
+                  <meta
+                    name="description"
+                    content="Manage your account, view saved properties, and track your activity."
+                  />
+                </Helmet>
+                <Profile />
+              </>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 };
